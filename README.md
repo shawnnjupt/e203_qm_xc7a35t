@@ -3,19 +3,19 @@
 文件夹介绍：
 
 .
-|-- README.md     ------------------------------------------- 介绍文件
+|-- README.md     ---------- 介绍文件
 |-- cpu_constructmarkdown-img
 |   |-- cpu_construct.assets
 |   -- image-20231212213309068.png
-|-- e203_nuclei_studio    ------------------------------------- e203的nuclei_studio工程
+|-- e203_nuclei_studio    ----------  e203的nuclei_studio工程
 |   |-- Debug
 |   |-- application
 |   |-- hbird_sdk
 |   -- test_e203hbridv2_debug_openocd.launch
-|-- e203_tools   -----------------------------------------------e203的开发工具
+|-- e203_tools   ---------- e203的开发工具
 |   |-- riscv-opcodes
 |     -- riscv_toolschain
--- e203_vivado       --------------------------------------------e203的vivado工程
+-- e203_vivado       ---------- e203的vivado工程
     |-- test_e203.cache
     |-- test_e203.gen
     |-- test_e203.hw
