@@ -83,7 +83,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-riscv-nuclei-elf-objcopy -O binary test_e203hbridv2.elf   test_e203hbridv2.bin
+	-riscv-nuclei-elf-objcopy -O binary test_e203hbridv2.elf   test_e203hbridv2.bin;riscv-nuclei-elf-objcopy -O verilog "test_e203hbridv2.elf" "test_e203hbridv2.verilog";sed -i 's/@800/@000/g' "test_e203hbridv2.verilog"; sed -i 's/@00002FB8/@00002000/g' "test_e203hbridv2.verilog";riscv-nuclei-elf-objdump -d  "test_e203hbridv2.elf" > "test_e203hbridv2.dasm";
 	-@echo ' '
 
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)

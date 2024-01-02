@@ -1,4 +1,4 @@
-application/main.o: ../application/main.c \
+application/aes.o: ../application/aes.c \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\application/aes.h \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbird_sdk_soc.h \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2.h \
@@ -18,9 +18,7 @@ application/main.o: ../application/main.c \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_gpio.h \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_i2c.h \
  D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_spi.h \
- D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_pwm.h \
- D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Board\mcu200t\Include/board_mcu200t.h \
- ../application/tinyaes_h.h
+ D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_pwm.h
 
 D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\application/aes.h:
 
@@ -61,7 +59,3 @@ D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Comm
 D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_spi.h:
 
 D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Common\Include/hbirdv2_pwm.h:
-
-D:\code\fpga\gitee\e203_qm_xc7a35t\e203_nuclei_studio\hbird_sdk\SoC\hbirdv2\Board\mcu200t\Include/board_mcu200t.h:
-
-../application/tinyaes_h.h:

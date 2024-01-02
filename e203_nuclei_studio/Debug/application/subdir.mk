@@ -4,13 +4,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../application/main.c 
+../application/aes.c \
+../application/main.c \
+../application/tinyaes_c.c 
 
 OBJS += \
-./application/main.o 
+./application/aes.o \
+./application/main.o \
+./application/tinyaes_c.o 
 
 C_DEPS += \
-./application/main.d 
+./application/aes.d \
+./application/main.d \
+./application/tinyaes_c.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

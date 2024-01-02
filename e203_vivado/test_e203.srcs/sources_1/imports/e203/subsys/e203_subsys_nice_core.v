@@ -158,6 +158,7 @@ module e203_subsys_nice_core (
    wire [NICE_FSM_WIDTH-1:0] state_sbuf_nxt; 
    wire [NICE_FSM_WIDTH-1:0] state_rowsum_nxt; 
 
+
    wire nice_req_hsked;
    wire nice_rsp_hsked;
    wire nice_icb_rsp_hsked;
@@ -174,14 +175,14 @@ module e203_subsys_nice_core (
    wire state_is_sbuf     = (state_r == SBUF); 
    wire state_is_rowsum   = (state_r == ROWSUM); 
 
-   assign state_idle_exit_ena = state_is_idle & nice_req_hsked & ~illgel_instr; 
+   assign state_idle_exit_ena = state_is_idle & nice_req_hsked & ~illgel_instr; //指令请求握手 并且处于空闲状态  指令执行过程中不切换
    assign state_idle_nxt =  custom3_lbuf    ? LBUF   : 
                             custom3_sbuf    ? SBUF   :
-                            custom3_rowsum  ? ROWSUM :
+                            custom3_rowsum  ? ROWSUM :  //判断指令是三种其中哪一种分别 就设置下一次跳转指令为哪一个
 			    IDLE;
 
    wire lbuf_icb_rsp_hsked_last; 
-   assign state_lbuf_exit_ena = state_is_lbuf & lbuf_icb_rsp_hsked_last; 
+   assign state_lbuf_exit_ena = state_is_lbuf & lbuf_icb_rsp_hsked_last; //lbuf_icb_rsp_hsked_last信号变1则触发 state 归idle
    assign state_lbuf_nxt = IDLE;
 
    wire sbuf_icb_rsp_hsked_last; 
@@ -192,7 +193,7 @@ module e203_subsys_nice_core (
    assign state_rowsum_exit_ena = state_is_rowsum & rowsum_done; 
    assign state_rowsum_nxt = IDLE;
 
-   assign nxt_state =   ({NICE_FSM_WIDTH{state_idle_exit_ena   }} & state_idle_nxt   )
+   assign nxt_state =   ({NICE_FSM_WIDTH{state_idle_exit_ena   }} & state_idle_nxt   )   //设置下一次指令为哪一个
                       | ({NICE_FSM_WIDTH{state_lbuf_exit_ena   }} & state_lbuf_nxt   ) 
                       | ({NICE_FSM_WIDTH{state_sbuf_exit_ena   }} & state_sbuf_nxt   ) 
                       | ({NICE_FSM_WIDTH{state_rowsum_exit_ena }} & state_rowsum_nxt ) 
@@ -220,11 +221,11 @@ module e203_subsys_nice_core (
    wire nice_rsp_valid_lbuf;
    wire nice_icb_cmd_valid_lbuf;
 
-   assign lbuf_icb_rsp_hsked = state_is_lbuf & nice_icb_rsp_hsked;
+   assign lbuf_icb_rsp_hsked = state_is_lbuf & nice_icb_rsp_hsked;//一旦 内存回复发送过来 
    assign lbuf_icb_rsp_hsked_last = lbuf_icb_rsp_hsked & lbuf_cnt_last;
-   assign lbuf_cnt_last = (lbuf_cnt_r == clonum);
-   assign lbuf_cnt_clr = custom3_lbuf & nice_req_hsked;
-   assign lbuf_cnt_incr = lbuf_icb_rsp_hsked & ~lbuf_cnt_last;
+   assign lbuf_cnt_last = (lbuf_cnt_r == clonum);  //计数器到达最后一个数组地址之后  置1
+   assign lbuf_cnt_clr = custom3_lbuf & nice_req_hsked;  //请求指令 握手成功 并且是lbuf操作
+   assign lbuf_cnt_incr = lbuf_icb_rsp_hsked & ~lbuf_cnt_last;//内存回复并且不是最后一个操作数组
    assign lbuf_cnt_ena = lbuf_cnt_clr | lbuf_cnt_incr;
    assign lbuf_cnt_nxt =   ({ROWBUF_IDX_W{lbuf_cnt_clr }} & {ROWBUF_IDX_W{1'b0}})
                          | ({ROWBUF_IDX_W{lbuf_cnt_incr}} & (lbuf_cnt_r + 1'b1) )
@@ -233,7 +234,7 @@ module e203_subsys_nice_core (
    sirv_gnrl_dfflr #(ROWBUF_IDX_W)   lbuf_cnt_dfflr (lbuf_cnt_ena, lbuf_cnt_nxt, lbuf_cnt_r, nice_clk, nice_rst_n);
 
    // nice_rsp_valid wait for nice_icb_rsp_valid in LBUF
-   assign nice_rsp_valid_lbuf = state_is_lbuf & lbuf_cnt_last & nice_icb_rsp_valid;
+   assign nice_rsp_valid_lbuf = state_is_lbuf & lbuf_cnt_last & nice_icb_rsp_valid;//当内存回复 已经完成 并且计数器达到最后一个数之后 valid置1
 
    // nice_icb_cmd_valid sets when lbuf_cnt_r is not full in LBUF
    assign nice_icb_cmd_valid_lbuf = (state_is_lbuf & (lbuf_cnt_r < clonum));
@@ -251,13 +252,13 @@ module e203_subsys_nice_core (
    wire nice_icb_cmd_valid_sbuf;
    wire nice_icb_cmd_hsked;
 
-   assign sbuf_icb_cmd_hsked = (state_is_sbuf | (state_is_idle & custom3_sbuf)) & nice_icb_cmd_hsked;
+   assign sbuf_icb_cmd_hsked = (state_is_sbuf | (state_is_idle & custom3_sbuf)) & nice_icb_cmd_hsked;//一旦内存 存储请求发送
    assign sbuf_icb_rsp_hsked = state_is_sbuf & nice_icb_rsp_hsked;
    assign sbuf_icb_rsp_hsked_last = sbuf_icb_rsp_hsked & sbuf_cnt_last;
    assign sbuf_cnt_last = (sbuf_cnt_r == clonum);
    //assign sbuf_cnt_clr = custom3_sbuf & nice_req_hsked;
    assign sbuf_cnt_clr = sbuf_icb_rsp_hsked_last;
-   assign sbuf_cnt_incr = sbuf_icb_rsp_hsked & ~sbuf_cnt_last;
+   assign sbuf_cnt_incr = sbuf_icb_rsp_hsked & ~sbuf_cnt_last;//非最后一个数组存储过程
    assign sbuf_cnt_ena = sbuf_cnt_clr | sbuf_cnt_incr;
    assign sbuf_cnt_nxt =   ({ROWBUF_IDX_W{sbuf_cnt_clr }} & {ROWBUF_IDX_W{1'b0}})
                          | ({ROWBUF_IDX_W{sbuf_cnt_incr}} & (sbuf_cnt_r + 1'b1) )
@@ -266,7 +267,7 @@ module e203_subsys_nice_core (
    sirv_gnrl_dfflr #(ROWBUF_IDX_W)   sbuf_cnt_dfflr (sbuf_cnt_ena, sbuf_cnt_nxt, sbuf_cnt_r, nice_clk, nice_rst_n);
 
    // nice_rsp_valid wait for nice_icb_rsp_valid in SBUF
-   assign nice_rsp_valid_sbuf = state_is_sbuf & sbuf_cnt_last & nice_icb_rsp_valid;
+   assign nice_rsp_valid_sbuf = state_is_sbuf & sbuf_cnt_last & nice_icb_rsp_valid;//当 sbuf指令到达最后一个并且得到了内存回复valid表示完成指令 
 
    wire [ROWBUF_IDX_W-1:0] sbuf_cmd_cnt_r; 
    wire [ROWBUF_IDX_W-1:0] sbuf_cmd_cnt_nxt; 
@@ -300,11 +301,11 @@ module e203_subsys_nice_core (
    wire rowbuf_rsp_hsked;
    wire nice_rsp_valid_rowsum;
 
-   assign rowbuf_rsp_hsked = nice_rsp_valid_rowsum & nice_rsp_ready;
-   assign rowbuf_icb_rsp_hsked = state_is_rowsum & nice_icb_rsp_hsked;
-   assign rowbuf_cnt_last = (rowbuf_cnt_r == clonum);
-   assign rowbuf_cnt_clr = rowbuf_icb_rsp_hsked & rowbuf_cnt_last;
-   assign rowbuf_cnt_incr = rowbuf_icb_rsp_hsked & ~rowbuf_cnt_last;
+   assign rowbuf_rsp_hsked = nice_rsp_valid_rowsum & nice_rsp_ready;//完成rowbuf_hsked之后
+   assign rowbuf_icb_rsp_hsked = state_is_rowsum & nice_icb_rsp_hsked;//内存 访问回复握手
+   assign rowbuf_cnt_last = (rowbuf_cnt_r == clonum);//计算器是否是最后一个
+   assign rowbuf_cnt_clr = rowbuf_icb_rsp_hsked & rowbuf_cnt_last;//到达最后一个
+   assign rowbuf_cnt_incr = rowbuf_icb_rsp_hsked & ~rowbuf_cnt_last;//未到达最后一个
    assign rowbuf_cnt_ena = rowbuf_cnt_clr | rowbuf_cnt_incr;
    assign rowbuf_cnt_nxt =   ({ROWBUF_IDX_W{rowbuf_cnt_clr }} & {ROWBUF_IDX_W{1'b0}})
                            | ({ROWBUF_IDX_W{rowbuf_cnt_incr}} & (rowbuf_cnt_r + 1'b1))
@@ -324,10 +325,10 @@ module e203_subsys_nice_core (
    wire [ROWBUF_IDX_W-1:0] rcv_data_buf_idx; 
    wire [ROWBUF_IDX_W-1:0] rcv_data_buf_idx_nxt; 
 
-   assign rcv_data_buf_set = rowbuf_icb_rsp_hsked;
-   assign rcv_data_buf_clr = rowbuf_rsp_hsked;
+   assign rcv_data_buf_set = rowbuf_icb_rsp_hsked;//内存 访问回复握手
+   assign rcv_data_buf_clr = rowbuf_rsp_hsked;//rowbuf  指令收到 完毕
    assign rcv_data_buf_ena = rcv_data_buf_clr | rcv_data_buf_set;
-   assign rcv_data_buf_idx_nxt =   ({ROWBUF_IDX_W{rcv_data_buf_clr}} & {ROWBUF_IDX_W{1'b0}})
+   assign rcv_data_buf_idx_nxt =   ({ROWBUF_IDX_W{rcv_data_buf_clr}} & {ROWBUF_IDX_W{1'b0}})//完成rowbuf之后将buf清0
                                  | ({ROWBUF_IDX_W{rcv_data_buf_set}} & rowbuf_cnt_r        );
 
    sirv_gnrl_dfflr #(1)   rcv_data_buf_valid_dfflr (1'b1, rcv_data_buf_ena, rcv_data_buf_valid, nice_clk, nice_rst_n);
@@ -344,12 +345,12 @@ module e203_subsys_nice_core (
    wire nice_icb_cmd_valid_rowsum;
    wire [`E203_XLEN-1:0] rowsum_res;
 
-   assign rowsum_acc_set = rcv_data_buf_valid & (rcv_data_buf_idx == {ROWBUF_IDX_W{1'b0}});
+   assign rowsum_acc_set = rcv_data_buf_valid & (rcv_data_buf_idx == {ROWBUF_IDX_W{1'b0}});//表示 第一个操作数
    assign rowsum_acc_flg = rcv_data_buf_valid & (rcv_data_buf_idx != {ROWBUF_IDX_W{1'b0}});
    assign rowsum_acc_adder = rcv_data_buf + rowsum_acc_r;
    assign rowsum_acc_ena = rowsum_acc_set | rowsum_acc_flg;
    assign rowsum_acc_nxt =   ({`E203_XLEN{rowsum_acc_set}} & rcv_data_buf)
-                           | ({`E203_XLEN{rowsum_acc_flg}} & rowsum_acc_adder)
+                           | ({`E203_XLEN{rowsum_acc_flg}} & rowsum_acc_adder)//累加操作
                            ;
  
    sirv_gnrl_dfflr #(`E203_XLEN)   rowsum_acc_dfflr (rowsum_acc_ena, rowsum_acc_nxt, rowsum_acc_r, nice_clk, nice_rst_n);
@@ -358,7 +359,7 @@ module e203_subsys_nice_core (
    assign rowsum_res  = rowsum_acc_r;
 
    // rowsum finishes when the last acc data is added to rowsum_acc_r  
-   assign nice_rsp_valid_rowsum = state_is_rowsum & (rcv_data_buf_idx == clonum) & ~rowsum_acc_flg;
+   assign nice_rsp_valid_rowsum = state_is_rowsum & (rcv_data_buf_idx == clonum) & ~rowsum_acc_flg;//代表完成指令 
 
    // nice_icb_cmd_valid sets when rcv_data_buf_idx is not full in LBUF
    assign nice_icb_cmd_valid_rowsum = state_is_rowsum & (rcv_data_buf_idx < clonum) & ~rowsum_acc_flg;
@@ -377,9 +378,9 @@ module e203_subsys_nice_core (
    //wire [ROWBUF_IDX_W-1:0] sbuf_idx; 
    
    // lbuf write to rowbuf
-   wire [ROWBUF_IDX_W-1:0] lbuf_idx = lbuf_cnt_r; 
-   wire lbuf_wr = lbuf_icb_rsp_hsked; 
-   wire [`E203_XLEN-1:0] lbuf_wdata = nice_icb_rsp_rdata;
+   wire [ROWBUF_IDX_W-1:0] lbuf_idx = lbuf_cnt_r; //lbuf 操作idx
+   wire lbuf_wr = lbuf_icb_rsp_hsked; //收到内存回复的 完成指令
+   wire [`E203_XLEN-1:0] lbuf_wdata = nice_icb_rsp_rdata;//内存发送过来的数值
 
    // rowsum write to rowbuf(column accumulated data)
    wire [ROWBUF_IDX_W-1:0] rowsum_idx = rcv_data_buf_idx; 
@@ -387,11 +388,11 @@ module e203_subsys_nice_core (
    wire [`E203_XLEN-1:0] rowsum_wdata = rowbuf_r[rowsum_idx] + rcv_data_buf;
 
    // rowbuf write mux
-   assign rowbuf_wdat_mux =   ({`E203_XLEN{lbuf_wr  }} & lbuf_wdata  )
+   assign rowbuf_wdat_mux =   ({`E203_XLEN{lbuf_wr  }} & lbuf_wdata  )  //如果lbuf指令并且内存回复完成  rowbuf_wdat_mux 就为nice_icb_rsp_rdata
                             | ({`E203_XLEN{rowsum_wr}} & rowsum_wdata)
                             ;
    assign rowbuf_wr_mux   =  lbuf_wr | rowsum_wr;
-   assign rowbuf_idx_mux  =   ({ROWBUF_IDX_W{lbuf_wr  }} & lbuf_idx  )
+   assign rowbuf_idx_mux  =   ({ROWBUF_IDX_W{lbuf_wr  }} & lbuf_idx  ) //如果为lbuf指令 那么值就为lbuf_idx
                             | ({ROWBUF_IDX_W{rowsum_wr}} & rowsum_idx)
                             ;  
 
@@ -399,19 +400,19 @@ module e203_subsys_nice_core (
    genvar i;
    generate 
      for (i=0; i<ROWBUF_DP; i=i+1) begin:gen_rowbuf
-       assign rowbuf_we[i] =   (rowbuf_wr_mux & (rowbuf_idx_mux == i[ROWBUF_IDX_W-1:0]))
+       assign rowbuf_we[i] =   (rowbuf_wr_mux & (rowbuf_idx_mux == i[ROWBUF_IDX_W-1:0]))//对于lbuf指令 那么就将rowbuf_idx_mux对应的数组we信号置1
                              ;
   
-       assign rowbuf_wdat[i] =   ({`E203_XLEN{rowbuf_we[i]}} & rowbuf_wdat_mux   )
+       assign rowbuf_wdat[i] =   ({`E203_XLEN{rowbuf_we[i]}} & rowbuf_wdat_mux   )//如果we为1 那么就将rowbuf_wdat_mux内容写到rowbuf_wdat中,rowbuf_wdat再存入 rowbuf_r
                                ;
   
        sirv_gnrl_dfflr #(`E203_XLEN) rowbuf_dfflr (rowbuf_we[i], rowbuf_wdat[i], rowbuf_r[i], nice_clk, nice_rst_n);
-     end
+     end//最后写入内存的是rowbuf_r[sbuf_idx] 这个值
    endgenerate
 
    //////////// mem aacess addr management
    wire [`E203_XLEN-1:0] maddr_acc_r; 
-   assign nice_icb_cmd_hsked = nice_icb_cmd_valid & nice_icb_cmd_ready; 
+   assign nice_icb_cmd_hsked = nice_icb_cmd_valid & nice_icb_cmd_ready;  //内存请求成功  握手
    // custom3_lbuf 
    //wire [`E203_XLEN-1:0] lbuf_maddr    = state_is_idle ? nice_req_rs1 : maddr_acc_r ; 
    wire lbuf_maddr_ena    =   (state_is_idle & custom3_lbuf & nice_icb_cmd_hsked)
@@ -433,12 +434,12 @@ module e203_subsys_nice_core (
    // maddr acc 
    //wire  maddr_incr = lbuf_maddr_ena | sbuf_maddr_ena | rowsum_maddr_ena | rbuf_maddr_ena;
    wire  maddr_ena = lbuf_maddr_ena | sbuf_maddr_ena | rowsum_maddr_ena;
-   wire  maddr_ena_idle = maddr_ena & state_is_idle;
+   wire  maddr_ena_idle = maddr_ena & state_is_idle;//当有指令并且 处于idle态的时候取操作数
 
-   wire [`E203_XLEN-1:0] maddr_acc_op1 = maddr_ena_idle ? nice_req_rs1 : maddr_acc_r; // not reused
+   wire [`E203_XLEN-1:0] maddr_acc_op1 = maddr_ena_idle ? nice_req_rs1 : maddr_acc_r; // not reused  控制 如果第一次从空闲状态取地址是rs1 否则就是 之后内存计算出来的的地址
    wire [`E203_XLEN-1:0] maddr_acc_op2 = maddr_ena_idle ? `E203_XLEN'h4 : `E203_XLEN'h4; 
 
-   wire [`E203_XLEN-1:0] maddr_acc_next = maddr_acc_op1 + maddr_acc_op2;
+   wire [`E203_XLEN-1:0] maddr_acc_next = maddr_acc_op1 + maddr_acc_op2;  //访问内存地址 每次加 4
    wire  maddr_acc_ena = maddr_ena;
 
    sirv_gnrl_dfflr #(`E203_XLEN)   maddr_acc_dfflr (maddr_acc_ena, maddr_acc_next, maddr_acc_r, nice_clk, nice_rst_n);
@@ -446,22 +447,22 @@ module e203_subsys_nice_core (
    ////////////////////////////////////////////////////////////
    // Control cmd_req
    ////////////////////////////////////////////////////////////
-   assign nice_req_hsked = nice_req_valid & nice_req_ready;
-   assign nice_req_ready = state_is_idle & (custom_mem_op ? nice_icb_cmd_ready : 1'b1);
+   assign nice_req_hsked = nice_req_valid & nice_req_ready;//nice核握手成功 接受指令
+   assign nice_req_ready = state_is_idle & (custom_mem_op ? nice_icb_cmd_ready : 1'b1);//如果nice 正处于空闲阶段就准备好了
 
    ////////////////////////////////////////////////////////////
    // Control cmd_rsp
    ////////////////////////////////////////////////////////////
-   assign nice_rsp_hsked = nice_rsp_valid & nice_rsp_ready; 
-   assign nice_icb_rsp_hsked = nice_icb_rsp_valid & nice_icb_rsp_ready;
-   assign nice_rsp_valid = nice_rsp_valid_rowsum | nice_rsp_valid_sbuf | nice_rsp_valid_lbuf;
+   assign nice_rsp_hsked = nice_rsp_valid & nice_rsp_ready; //完成指令  握手成功
+   assign nice_icb_rsp_hsked = nice_icb_rsp_valid & nice_icb_rsp_ready;//内存回复握手成功 会一直持续发送值
+   assign nice_rsp_valid = nice_rsp_valid_rowsum | nice_rsp_valid_sbuf | nice_rsp_valid_lbuf;  //nice核完成某一种指令之后回复指令完成
    assign nice_rsp_rdat  = {`E203_XLEN{state_is_rowsum}} & rowsum_res;
 
    // memory access bus error
    //assign nice_rsp_err_irq  =   (nice_icb_rsp_hsked & nice_icb_rsp_err)
    //                          | (nice_req_hsked & illgel_instr)
    //                          ; 
-   assign nice_rsp_err   =   (nice_icb_rsp_hsked & nice_icb_rsp_err);
+   assign nice_rsp_err   =   (nice_icb_rsp_hsked & nice_icb_rsp_err);//基本都是0  
 
    ////////////////////////////////////////////////////////////
    // Memory lsu
@@ -473,17 +474,17 @@ module e203_subsys_nice_core (
    //  3. In ROWSUM, it will read from memory as long as rowsum_cnt_r is not full
    //assign nice_icb_rsp_ready = state_is_ldst_rsp & nice_rsp_ready; 
    // rsp always ready
-   assign nice_icb_rsp_ready = 1'b1; 
+   assign nice_icb_rsp_ready = 1'b1; //内存回复 ready永远 1
    wire [ROWBUF_IDX_W-1:0] sbuf_idx = sbuf_cmd_cnt_r; 
 
-   assign nice_icb_cmd_valid =   (state_is_idle & nice_req_valid & custom_mem_op)
+   assign nice_icb_cmd_valid =   (state_is_idle & nice_req_valid & custom_mem_op)  // 空闲时候有内存访问任务请求置1  或者正在执行nice任务置1
                               | nice_icb_cmd_valid_lbuf
                               | nice_icb_cmd_valid_sbuf
                               | nice_icb_cmd_valid_rowsum
                               ;
    assign nice_icb_cmd_addr  = (state_is_idle & custom_mem_op) ? nice_req_rs1 :
                               maddr_acc_r;
-   assign nice_icb_cmd_read  = (state_is_idle & custom_mem_op) ? (custom3_lbuf | custom3_rowsum) : 
+   assign nice_icb_cmd_read  = (state_is_idle & custom_mem_op) ? (custom3_lbuf | custom3_rowsum) : //判断数据传输方向，1表示read；仅仅在sbuf状态和idle状态收到sbuf指令时为写（收到sbuf指令直到sbuf完成均为high）
                               state_is_sbuf ? 1'b0 : 
                               1'b1;
    assign nice_icb_cmd_wdata = (state_is_idle & custom3_sbuf) ? rowbuf_r[sbuf_idx] :
@@ -492,7 +493,7 @@ module e203_subsys_nice_core (
 
    //assign nice_icb_cmd_wmask = {`sirv_XLEN_MW{custom3_sbuf}} & 4'b1111;
    assign nice_icb_cmd_size  = 2'b10;
-   assign nice_mem_holdup    =  state_is_lbuf | state_is_sbuf | state_is_rowsum; 
+   assign nice_mem_holdup    =  state_is_lbuf | state_is_sbuf | state_is_rowsum; //执行指令时 holdup cpu 的lsu单元
 
    ////////////////////////////////////////////////////////////
    // nice_active

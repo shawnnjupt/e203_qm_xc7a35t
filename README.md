@@ -1441,6 +1441,11 @@ load_image D:/files/learning/papers/cpu_riscv/paper/riscv_cpu_constuct/riscv_too
 
 
 resume 0x80000000
+
+
+load_image D:/code/fpga/gitee/e203_qm_xc7a35t/e203_tools/riscv_toolschain/e203_hbirdv2_bin/test_e203hbridv2.bin 0x80000000
+
+resume 0x80000000
 ```
 
 现象

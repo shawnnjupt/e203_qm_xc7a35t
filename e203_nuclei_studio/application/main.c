@@ -1,103 +1,149 @@
 // See LICENSE for license details.
+#include <aes.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 #include "hbird_sdk_soc.h"
 #include "board_mcu200t.h"
+#include "tinyaes_h.h"
 
 
-void print_misa(void)
+
+
+
+static void phex(uint8_t *str)
 {
-    CSR_MISA_Type misa_bits = (CSR_MISA_Type) __RV_CSR_READ(CSR_MISA);
-    static char misa_chars[30];
-    uint8_t index = 0;
-    if (misa_bits.b.mxl == 1) {
-        misa_chars[index++] = '3';
-        misa_chars[index++] = '2';
-    } else if (misa_bits.b.mxl == 2) {
-        misa_chars[index++] = '6';
-        misa_chars[index++] = '4';
-    } else if (misa_bits.b.mxl == 3) {
-        misa_chars[index++] = '1';
-        misa_chars[index++] = '2';
-        misa_chars[index++] = '8';
-    }
-    if (misa_bits.b.i) {
-        misa_chars[index++] = 'I';
-    }
-    if (misa_bits.b.m) {
-        misa_chars[index++] = 'M';
-    }
-    if (misa_bits.b.a) {
-        misa_chars[index++] = 'A';
-    }
-    if (misa_bits.b.b) {
-        misa_chars[index++] = 'B';
-    }
-    if (misa_bits.b.c) {
-        misa_chars[index++] = 'C';
-    }
-    if (misa_bits.b.e) {
-        misa_chars[index++] = 'E';
-    }
-    if (misa_bits.b.f) {
-        misa_chars[index++] = 'F';
-    }
-    if (misa_bits.b.d) {
-        misa_chars[index++] = 'D';
-    }
-    if (misa_bits.b.q) {
-        misa_chars[index++] = 'Q';
-    }
-    if (misa_bits.b.h) {
-        misa_chars[index++] = 'H';
-    }
-    if (misa_bits.b.j) {
-        misa_chars[index++] = 'J';
-    }
-    if (misa_bits.b.l) {
-        misa_chars[index++] = 'L';
-    }
-    if (misa_bits.b.n) {
-        misa_chars[index++] = 'N';
-    }
-    if (misa_bits.b.s) {
-        misa_chars[index++] = 'S';
-    }
-    if (misa_bits.b.p) {
-        misa_chars[index++] = 'P';
-    }
-    if (misa_bits.b.t) {
-        misa_chars[index++] = 'T';
-    }
-    if (misa_bits.b.u) {
-        misa_chars[index++] = 'U';
-    }
-    if (misa_bits.b.x) {
-        misa_chars[index++] = 'X';
-    }
 
-    misa_chars[index++] = '\0';
+#if defined(AES256)
+    uint8_t len = 32;
+#elif defined(AES192)
+    uint8_t len = 24;
+#elif defined(AES128)
+    uint8_t len = 16;
+#endif
 
-    printf("MISA: RV%s\r\n", misa_chars);
+    unsigned char i;
+    for (i = 0; i < len; ++i)
+        printf("%.2x", str[i]);
+    printf("\n");
 }
 
-int main(void)
+static void normal_case(void)
 {
-    srand(__get_rv_cycle()  | __get_rv_instret() | __RV_CSR_READ(CSR_MCYCLE));
-    uint32_t rval = rand();
-    rv_csr_t misa = __RV_CSR_READ(CSR_MISA);
+    uint8_t i;
+    uint8_t key[16] = {(uint8_t)0x2b, (uint8_t)0x7e, (uint8_t)0x15, (uint8_t)0x16, (uint8_t)0x28, (uint8_t)0xae, (uint8_t)0xd2, (uint8_t)0xa6, (uint8_t)0xab, (uint8_t)0xf7, (uint8_t)0x15, (uint8_t)0x88, (uint8_t)0x09, (uint8_t)0xcf, (uint8_t)0x4f, (uint8_t)0x3c};
+    uint8_t plain_text[16] = {(uint8_t)0x32, (uint8_t)0x43, (uint8_t)0xf6, (uint8_t)0xa8, (uint8_t)0x88, (uint8_t)0x5a, (uint8_t)0x30, (uint8_t)0x8d, (uint8_t)0x31, (uint8_t)0x31, (uint8_t)0x98, (uint8_t)0xa2, (uint8_t)0xe0, (uint8_t)0x37, (uint8_t)0x07, (uint8_t)0x34};
+    printf("ciphertext:\n");
+    struct AES_ctx ctx;
+    AES_init_ctx(&ctx, key);
+    AES_ECB_encrypt(&ctx, plain_text);
+    phex(plain_text);
 
-//    printf("MISA: 0x%lx\r\n", misa);
-    print_misa();
+}
+
+
+
+
+
+
+void led_config()
+{
+
     gpio_enable_output(GPIOA,SOC_LED_6_GPIO_MASK);
     gpio_write(GPIOA,SOC_LED_6_GPIO_MASK,0);
 
-    while(1){
-        printf(" Hello World From RISC-V Processor!\r\n");
-        gpio_toggle(GPIOA,SOC_LED_6_GPIO_MASK);
+    gpio_enable_output(GPIOB,SOC_SW_0_GPIO_MASK);
+    gpio_write(GPIOB,SOC_SW_0_GPIO_MASK,0);
 
-        delay_1ms(2000);
+    gpio_enable_output(GPIOB,SOC_SW_1_GPIO_MASK);
+    gpio_write(GPIOB,SOC_SW_1_GPIO_MASK,0);
+
+    gpio_enable_output(GPIOB,SOC_SW_2_GPIO_MASK);
+    gpio_write(GPIOB,SOC_SW_2_GPIO_MASK,0);
+
+}
+
+
+void led_toggle()
+{
+
+    gpio_toggle(GPIOA,SOC_LED_6_GPIO_MASK);
+    gpio_toggle(GPIOB,SOC_SW_0_GPIO_MASK);
+    gpio_toggle(GPIOB,SOC_SW_1_GPIO_MASK);
+    gpio_toggle(GPIOB,SOC_SW_2_GPIO_MASK);
+}
+
+
+
+
+
+
+int main(void)
+{
+
+      //明文
+	 uint8_t pt[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+	 //密钥
+	 uint8_t key1[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+
+	 unsigned int begin_instret, end_instret, instret_normal, instret_nice;
+	 unsigned int begin_cycle,   end_cycle,   cycle_normal,   cycle_nice;
+
+     printf(" Hello World From RISC-V Processor!\r\n");
+
+#if defined(AES256)
+    printf("\nTesting AES256\n\n");
+#elif defined(AES192)
+    printf("\nTesting AES192\n\n");
+#elif defined(AES128)
+    printf("Testing AES128\n");
+#else
+    printf("You need to specify a symbol between AES128, AES192 or AES256. Exiting");
+    return 0;
+#endif
+
+
+
+    while(1){
+
+    	 printf("**********************************************\n");
+    	 printf("** begin to exu normal case\n");
+    	 begin_instret =  __get_rv_instret();
+    	 begin_cycle   =  __get_rv_cycle();
+
+        normal_case();
+
+        instret_normal = end_instret - begin_instret;
+        cycle_normal = end_cycle - begin_cycle;
+
+
+        printf("**********************************************\n");
+        printf("** begin to exu nice_case\n");
+        begin_instret =  __get_rv_instret();
+        begin_cycle   =  __get_rv_cycle();
+
+        nice_case(key1,pt);
+
+        end_instret = __get_rv_instret();
+        end_cycle   = __get_rv_cycle();
+
+        instret_nice = end_instret - begin_instret;
+        cycle_nice   = end_cycle - begin_cycle;
+
+        printf("**********************************************\n");
+        printf("** performance list \n");
+
+        printf("\t normal: \n");
+        printf("\t      instret: %u, cycle: %u \n", instret_normal, cycle_normal);
+        printf("\t nice  : \n");
+        printf("\t      instret: %u, cycle: %u \n", instret_nice  , cycle_nice  );
+
+
+        printf("**********************************************\n\n");
+
+
+
+        delay_1ms(200);
 
 
     }
