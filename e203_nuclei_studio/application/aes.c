@@ -154,6 +154,7 @@ void  aes_cir_odd(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t c
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_2,1);
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_3,2);
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_4,3);
+
 	cir_rd_2=custom3_aes_encoding_choose(pt_extract(key,1),cir_rs2_2,0);
 	cir_rd_2=custom3_aes_encoding_choose(cir_rd_2,cir_rs2_3,1);
 	cir_rd_2=custom3_aes_encoding_choose(cir_rd_2,cir_rs2_4,2);

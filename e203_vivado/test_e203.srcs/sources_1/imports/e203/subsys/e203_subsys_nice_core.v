@@ -410,6 +410,14 @@ module e203_subsys_nice_core (
      end//最后写入内存的是rowbuf_r[sbuf_idx] 这个值
    endgenerate
 
+
+
+
+
+
+
+
+
    //////////// mem aacess addr management
    wire [`E203_XLEN-1:0] maddr_acc_r; 
    assign nice_icb_cmd_hsked = nice_icb_cmd_valid & nice_icb_cmd_ready;  //内存请求成功  握手
