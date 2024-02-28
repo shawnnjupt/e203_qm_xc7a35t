@@ -27,6 +27,14 @@
 	uint32_t cir_rd_3;
 	uint32_t cir_rd_4;
 
+	uint8_t cir_rd_temp1;
+	uint8_t cir_rd_temp2;
+	uint8_t cir_rd_temp3;
+	uint8_t cir_rd_temp4;
+
+
+
+
 	uint32_t cir_rd_5;
 	uint32_t cir_rd_6;
 	uint32_t cir_rd_7;
@@ -137,12 +145,12 @@ void before_cir_xor(uint8_t pt_xor[],uint8_t key[]){
 	cir1_rs2_3=pt_extract(pt_xor,2)^pt_extract(key,2);
 	cir1_rs2_4=pt_extract(pt_xor,3)^pt_extract(key,3);
 
-#ifdef _DEBUG_INFO_
+
 	printf("cir1_rs2_1=%08x\n",cir1_rs2_1);
 	printf("cir1_rs2_2=%08x\n",cir1_rs2_2);
 	printf("cir1_rs2_3=%08x\n",cir1_rs2_3);
 	printf("cir1_rs2_4=%08x\n",cir1_rs2_4);
-#endif
+
 }
 
 
@@ -150,28 +158,30 @@ void  aes_cir_odd(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t c
 {
 
 
-    cir_rd_1=custom3_aes_encoding_choose(pt_extract(key,0),cir_rs2_1,0);
+    cir_rd_1=custom3_aes_encoding_choose(0,cir_rs2_1,0);
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_2,1);
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_3,2);
 	cir_rd_1=custom3_aes_encoding_choose(cir_rd_1,cir_rs2_4,3);
 
-	cir_rd_2=custom3_aes_encoding_choose(pt_extract(key,1),cir_rs2_2,0);
+	cir_rd_2=custom3_aes_encoding_choose(0,cir_rs2_2,0);
 	cir_rd_2=custom3_aes_encoding_choose(cir_rd_2,cir_rs2_3,1);
 	cir_rd_2=custom3_aes_encoding_choose(cir_rd_2,cir_rs2_4,2);
 	cir_rd_2=custom3_aes_encoding_choose(cir_rd_2,cir_rs2_1,3);
 
 
 
-	cir_rd_3=custom3_aes_encoding_choose(pt_extract(key,2),cir_rs2_3,0);
+	cir_rd_3=custom3_aes_encoding_choose(0,cir_rs2_3,0);
 	cir_rd_3=custom3_aes_encoding_choose(cir_rd_3,cir_rs2_4,1);
 	cir_rd_3=custom3_aes_encoding_choose(cir_rd_3,cir_rs2_1,2);
 	cir_rd_3=custom3_aes_encoding_choose(cir_rd_3,cir_rs2_2,3);
 
 
-	cir_rd_4=custom3_aes_encoding_choose(pt_extract(key,3),cir_rs2_4,0);
+	cir_rd_4=custom3_aes_encoding_choose(0,cir_rs2_4,0);
 	cir_rd_4=custom3_aes_encoding_choose(cir_rd_4,cir_rs2_1,1);
 	cir_rd_4=custom3_aes_encoding_choose(cir_rd_4,cir_rs2_2,2);
 	cir_rd_4=custom3_aes_encoding_choose(cir_rd_4,cir_rs2_3,3);
+
+
 #ifdef _DEBUG_INFO_
 	printf("cir_rd_1=%08x\n",cir_rd_1);
 	printf("cir_rd_2=%08x\n",cir_rd_2);
@@ -185,29 +195,30 @@ void  aes_cir_odd(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t c
 void  aes_cir_even(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t cir_rs2_3,uint32_t cir_rs2_4)//偶次 32x4=128  以字为单位，每次处理一个byte 8位 分别用四个uint32_t变量存储四个字
 {
 
-	cir_rd_5=custom3_aes_encoding_choose(pt_extract(key,0),cir_rs2_1,0);
+	cir_rd_5=custom3_aes_encoding_choose(0,cir_rs2_1,0);
 	cir_rd_5=custom3_aes_encoding_choose(cir_rd_5,cir_rs2_2,1);
 	cir_rd_5=custom3_aes_encoding_choose(cir_rd_5,cir_rs2_3,2);
 	cir_rd_5=custom3_aes_encoding_choose(cir_rd_5,cir_rs2_4,3);
 
 
-	cir_rd_6=custom3_aes_encoding_choose(pt_extract(key,1),cir_rs2_2,0);
+	cir_rd_6=custom3_aes_encoding_choose(0,cir_rs2_2,0);
 	cir_rd_6=custom3_aes_encoding_choose(cir_rd_6,cir_rs2_3,1);
 	cir_rd_6=custom3_aes_encoding_choose(cir_rd_6,cir_rs2_4,2);
 	cir_rd_6=custom3_aes_encoding_choose(cir_rd_6,cir_rs2_1,3);
 
 
 
-	cir_rd_7=custom3_aes_encoding_choose(pt_extract(key,2),cir_rs2_3,0);
+	cir_rd_7=custom3_aes_encoding_choose(0,cir_rs2_3,0);
 	cir_rd_7=custom3_aes_encoding_choose(cir_rd_7,cir_rs2_4,1);
 	cir_rd_7=custom3_aes_encoding_choose(cir_rd_7,cir_rs2_1,2);
 	cir_rd_7=custom3_aes_encoding_choose(cir_rd_7,cir_rs2_2,3);
 
 
-	cir_rd_8=custom3_aes_encoding_choose(pt_extract(key,3),cir_rs2_4,0);
+	cir_rd_8=custom3_aes_encoding_choose(0,cir_rs2_4,0);
 	cir_rd_8=custom3_aes_encoding_choose(cir_rd_8,cir_rs2_1,1);
 	cir_rd_8=custom3_aes_encoding_choose(cir_rd_8,cir_rs2_2,2);
 	cir_rd_8=custom3_aes_encoding_choose(cir_rd_8,cir_rs2_3,3);
+
 #ifdef _DEBUG_INFO_
 	printf("cir_rd_5=%08x\n",cir_rd_5);
 	printf("cir_rd_6=%08x\n",cir_rd_6);
@@ -221,29 +232,30 @@ void  aes_cir_even(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t 
 void  aes_cir_end(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t cir_rs2_3,uint32_t cir_rs2_4)//奇次 32x4=128  以字为单位，每次处理一个byte 8位 分别用四个uint32_t变量存储四个字
 {
 
-	cir_rd_5=custom3_aes_spe_encoding_choose(pt_extract(key,0),cir_rs2_1,0);
-	cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_2,1);
-	cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_3,2);
-	cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_4,3);
+    	cir_rd_5=custom3_aes_spe_encoding_choose(0,cir_rs2_1,0);
+		cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_2,1);
+		cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_3,2);
+		cir_rd_5=custom3_aes_spe_encoding_choose(cir_rd_5,cir_rs2_4,3);
 
 
-	cir_rd_6=custom3_aes_spe_encoding_choose(pt_extract(key,1),cir_rs2_2,0);
-	cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_3,1);
-	cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_4,2);
-	cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_1,3);
+		cir_rd_6=custom3_aes_spe_encoding_choose(0,cir_rs2_2,0);
+		cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_3,1);
+		cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_4,2);
+		cir_rd_6=custom3_aes_spe_encoding_choose(cir_rd_6,cir_rs2_1,3);
 
 
 
-	cir_rd_7=custom3_aes_spe_encoding_choose(pt_extract(key,2),cir_rs2_3,0);
-	cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_4,1);
-	cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_1,2);
-	cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_2,3);
+		cir_rd_7=custom3_aes_spe_encoding_choose(0,cir_rs2_3,0);
+		cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_4,1);
+		cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_1,2);
+		cir_rd_7=custom3_aes_spe_encoding_choose(cir_rd_7,cir_rs2_2,3);
 
 
-	cir_rd_8=custom3_aes_spe_encoding_choose(pt_extract(key,3),cir_rs2_4,0);
-	cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_1,1);
-	cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_2,2);
-	cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_3,3);
+		cir_rd_8=custom3_aes_spe_encoding_choose(0,cir_rs2_4,0);
+		cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_1,1);
+		cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_2,2);
+		cir_rd_8=custom3_aes_spe_encoding_choose(cir_rd_8,cir_rs2_3,3);
+
 #ifdef _DEBUG_INFO_
 	printf("cir_rd_5=%08x\n",cir_rd_5);
 	printf("cir_rd_6=%08x\n",cir_rd_6);
@@ -258,7 +270,7 @@ void  aes_cir_end(uint8_t key[],uint32_t cir_rs2_1,uint32_t cir_rs2_2,uint32_t c
 void nice_case(uint8_t key[],uint8_t pt[])
 {
 
-	aes_key_cir(key);//生成密钥
+	//aes_key_cir(key);//生成密钥
 	before_cir_xor(pt,key);//初始工作 进行xor
 	aes_cir_odd(key2,cir1_rs2_1,cir1_rs2_2,cir1_rs2_3,cir1_rs2_4);//奇次操作
 	aes_cir_even(key3,cir_rd_1,cir_rd_2,cir_rd_3,cir_rd_4);//偶次操作

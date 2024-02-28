@@ -46,6 +46,42 @@ extern uint32_t cir1_rs2_3;
 extern uint32_t cir1_rs2_4;
 
 
+static uint32_t custom3_aes_keyset1 (uint32_t first_keygen,uint32_t second_keygen)
+{
+	uint32_t keyset;
+
+
+        asm volatile (
+           ".insn r 0x7b, 6, 8, %0, %1, %2"
+                 :"=r"(keyset)
+                 :"r"(first_keygen),
+				  "r"(second_keygen)
+         );
+
+
+    return keyset;
+}
+
+
+
+static uint32_t custom3_aes_keyset2 (uint32_t third_keygen,uint32_t fourth_keygen)
+{
+	uint32_t keyset;
+
+
+        asm volatile (
+           ".insn r 0x7b, 6, 9, %0, %1, %2"
+                 :"=r"(keyset)
+                 :"r"(third_keygen),
+				  "r"(fourth_keygen)
+         );
+
+
+    return keyset;
+}
+
+
+
 
 
 

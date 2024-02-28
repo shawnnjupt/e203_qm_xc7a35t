@@ -122,6 +122,9 @@ int main(void)
         begin_instret =  __get_rv_instret();
         begin_cycle   =  __get_rv_cycle();
 
+
+        custom3_aes_keyset1(pt_extract(key1,0),pt_extract(key1,1));
+  		custom3_aes_keyset2(pt_extract(key1,2),pt_extract(key1,3));
         nice_case(key1,pt);
 
         end_instret = __get_rv_instret();
@@ -139,11 +142,18 @@ int main(void)
         printf("\t      instret: %u, cycle: %u \n", instret_nice  , cycle_nice  );
 
 
+
+
+
+
+
+
+
         printf("**********************************************\n\n");
 
 
 
-        delay_1ms(200);
+        delay_1ms(1);
 
 
     }
