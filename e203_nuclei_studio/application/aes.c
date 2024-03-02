@@ -146,10 +146,10 @@ void before_cir_xor(uint8_t pt_xor[],uint8_t key[]){
 	cir1_rs2_4=pt_extract(pt_xor,3)^pt_extract(key,3);
 
 
-	printf("cir1_rs2_1=%08x\n",cir1_rs2_1);
-	printf("cir1_rs2_2=%08x\n",cir1_rs2_2);
-	printf("cir1_rs2_3=%08x\n",cir1_rs2_3);
-	printf("cir1_rs2_4=%08x\n",cir1_rs2_4);
+//	printf("cir1_rs2_1=%08x\n",cir1_rs2_1);
+//	printf("cir1_rs2_2=%08x\n",cir1_rs2_2);
+//	printf("cir1_rs2_3=%08x\n",cir1_rs2_3);
+//	printf("cir1_rs2_4=%08x\n",cir1_rs2_4);
 
 }
 

@@ -7,7 +7,7 @@
 #include "board_mcu200t.h"
 #include "tinyaes_h.h"
 
-
+#include "aes32_wrap.h"
 
 
 
@@ -86,6 +86,10 @@ int main(void)
 	 //密钥
 	 uint8_t key1[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
 
+	 uint32_t rk[44];
+
+	 int i=0;
+
 	 unsigned int begin_instret, end_instret, instret_normal, instret_nice;
 	 unsigned int begin_cycle,   end_cycle,   cycle_normal,   cycle_nice;
 
@@ -108,49 +112,52 @@ int main(void)
 
     	 printf("**********************************************\n");
     	 printf("** begin to exu normal case\n");
-    	 begin_instret =  __get_rv_instret();
-    	 begin_cycle   =  __get_rv_cycle();
-
-        normal_case();
-
-        instret_normal = end_instret - begin_instret;
-        cycle_normal = end_cycle - begin_cycle;
 
 
-        printf("**********************************************\n");
-        printf("** begin to exu nice_case\n");
-        begin_instret =  __get_rv_instret();
-        begin_cycle   =  __get_rv_cycle();
+    	 aes128_enc_key(rk,key1);
+
+//    	 begin_instret =  __get_rv_instret();
+//    	 begin_cycle   =  __get_rv_cycle();
+//
+//        normal_case();
+//
+//        instret_normal = end_instret - begin_instret;
+//        cycle_normal = end_cycle - begin_cycle;
+//
+//
+//        printf("**********************************************\n");
+//        printf("** begin to exu nice_case\n");
+//        begin_instret =  __get_rv_instret();
+//        begin_cycle   =  __get_rv_cycle();
+//
+//
+//        custom3_aes_keyset1(pt_extract(key1,0),pt_extract(key1,1));
+//  		custom3_aes_keyset2(pt_extract(key1,2),pt_extract(key1,3));
+//        nice_case(key1,pt);
+//
+//        end_instret = __get_rv_instret();
+//        end_cycle   = __get_rv_cycle();
+//
+//        instret_nice = end_instret - begin_instret;
+//        cycle_nice   = end_cycle - begin_cycle;
+//
+//        printf("**********************************************\n");
+//        printf("** performance list \n");
+//
+//        printf("\t normal: \n");
+//        printf("\t      instret: %u, cycle: %u \n", instret_normal, cycle_normal);
+//        printf("\t nice  : \n");
+//        printf("\t      instret: %u, cycle: %u \n", instret_nice  , cycle_nice  );
+//
+//        printf("**********************************************\n\n");
 
 
-        custom3_aes_keyset1(pt_extract(key1,0),pt_extract(key1,1));
-  		custom3_aes_keyset2(pt_extract(key1,2),pt_extract(key1,3));
-        nice_case(key1,pt);
 
-        end_instret = __get_rv_instret();
-        end_cycle   = __get_rv_cycle();
+for (i=0;i<11;i++)
+{
 
-        instret_nice = end_instret - begin_instret;
-        cycle_nice   = end_cycle - begin_cycle;
-
-        printf("**********************************************\n");
-        printf("** performance list \n");
-
-        printf("\t normal: \n");
-        printf("\t      instret: %u, cycle: %u \n", instret_normal, cycle_normal);
-        printf("\t nice  : \n");
-        printf("\t      instret: %u, cycle: %u \n", instret_nice  , cycle_nice  );
-
-
-
-
-
-
-
-
-
-        printf("**********************************************\n\n");
-
+	printf("context(%d)=%8x %8x %8x %8x\n",i,rk[4*i],rk[4*i+1],rk[4*i+2],rk[4*i+3]);
+}
 
 
         delay_1ms(1);
