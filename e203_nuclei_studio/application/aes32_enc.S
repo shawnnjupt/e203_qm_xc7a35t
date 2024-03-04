@@ -32,13 +32,13 @@ aes_enc_rounds:
 		lw		t2,		8(a2)
 		lw		t3,		12(a2)
 
-		xor		t0,		t0,		t4			//	pt ^ rk
-		xor		t1,		t1,		t5
-		xor		t2,		t2,		t6
-		xor		t3,		t3,		a7
+	//	xor		t0,		t4,		t0			//	pt ^ rk
+	//	xor		t1,		t5,		t1
+	//	xor		t2,		t6,		t2
+	//	xor		t3,		a7,		t3
 
 		slli	a3,		a3,		4			//	final pointer
-		add		a3,		a3,		a2
+		add		a3,		a2,		a3
 
 		j		.ent						//	enter loop in the middle
 
@@ -162,9 +162,9 @@ aes128_enc_key:
 		xor		t0,		a1,		t0
 
 .nl0:
-		//slli	a1,		t3,		24			//	rotate a4
-		//srli	a1,		t3,		8
-		addi		a1,		a1,		1
+		slli	a4,		t3,		24			//	rotate a4
+		srli	a1,		t3,		8
+		or		a1,		a4,		a1
 
 		saes32_encs		T0, T0, A1, 0
 		saes32_encs		T0, T0, A1, 1
