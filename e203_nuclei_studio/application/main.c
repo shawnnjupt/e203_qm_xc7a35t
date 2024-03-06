@@ -74,7 +74,6 @@ void led_toggle()
 }
 
 
- uint32_t rk[44];
 
 
 
@@ -90,11 +89,12 @@ int main(void)
 
 	 int i=0;
 	 uint8_t ct[16];
+	 uint32_t rk[44];
 
 	 unsigned int begin_instret, end_instret, instret_normal, instret_nice;
 	 unsigned int begin_cycle,   end_cycle,   cycle_normal,   cycle_nice;
 
-     printf(" Hello World From RISC-V Processor!\r\n");
+
 
 #if defined(AES256)
     printf("\nTesting AES256\n\n");
@@ -122,6 +122,11 @@ int main(void)
 
         normal_case();
 
+
+        end_instret = __get_rv_instret();
+        end_cycle   = __get_rv_cycle();
+
+
         instret_normal = end_instret - begin_instret;
         cycle_normal = end_cycle - begin_cycle;
 
@@ -132,17 +137,19 @@ int main(void)
         begin_cycle   =  __get_rv_cycle();
 
 
-   	// aes128_enc_key(rk,key1);
+   	// aes128_enc_key(rk,key1);//original option
+   	//aes_enc_rounds(ct,pt,rk,10);//original option
 
-   	printf("context(1)=%08x %08x %08x %08x\n",rk[0],rk[1],rk[2],rk[3]);
+      //  aes_enc_optimized1(ct,pt,key1,5);
+        aes_enc_optimized2(ct,pt,key1);
 
-   	aes_enc_rounds(ct,pt,rk,10);
 
 
-//        custom3_aes_keyset1(pt_extract(key1,0),pt_extract(key1,1));
-//  		custom3_aes_keyset2(pt_extract(key1,2),pt_extract(key1,3));
-//        nice_case(key1,pt);
-//
+        //custom3_aes_keyset1(pt_extract(key1,0),pt_extract(key1,1));
+  		//custom3_aes_keyset2(pt_extract(key1,2),pt_extract(key1,3));
+        //nice_case(key1,pt);
+
+
         end_instret = __get_rv_instret();
 
         end_cycle   = __get_rv_cycle();
@@ -170,6 +177,7 @@ int main(void)
 
 
         phex(ct);
+
         delay_1ms(1);
 
 

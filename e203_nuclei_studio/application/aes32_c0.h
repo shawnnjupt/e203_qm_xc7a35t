@@ -10,7 +10,7 @@
 //	custom-0 r-type instruction encoding macro
 
 .macro cust0r fn3, fn7, rd, rs1, rs2
-	.word(0x0B + ((\fn3) << 12) + ((\fn7) << 25) + ((\rd) << 7) + ((\rs1) << 15) + ((\rs2) << 20))
+	.word(0x7B + ((\fn3) << 12) + ((\fn7) << 25) + ((\rd) << 7) + ((\rs1) << 15) + ((\rs2) << 20))
 	.endm
 
 
@@ -25,18 +25,35 @@
 //	SAES32 as funct3=0 -- with a fn in funct7
 
 	.macro	saes32			rd, rs1, rs2, fn
-	cust0r	6, \fn, \rd, \rs1, \rs2
+	cust0r	7, \fn, \rd, \rs1, \rs2
 	.endm
 
 //	Pseudo-ops for AES and SM4
 
-	.macro	saes32_encsm	rd, rs1, rs2, bs
+	.macro	aes32_encoding	rd, rs1, rs2, bs
 	saes32	\rd, \rs1, \rs2, ((SAES32_ENCSM_FN << 2) | (\bs))
 	.endm
 
-	.macro	saes32_encs		rd, rs1, rs2, bs
+	.macro	aes32_spe_encoding		rd, rs1, rs2, bs
 	saes32	\rd, \rs1, \rs2, ((SAES32_ENCS_FN << 2) | (\bs))
 	.endm
+
+	.macro	aes_keygen  	 rs1, rs2, bs
+	saes32	0, \rs1, \rs2, ((SAES32_ENCS_FN << 3) | (\bs))
+	.endm
+
+
+
+	.macro	aes_cirgen  	 rs1, rs2, bs
+	saes32	0, \rs1, \rs2, ((SAES32_ENCSM_FN << 3) | (\bs))
+	.endm
+
+	.macro	aes_get_result  	rd, bs
+	saes32	\rd, 0, 0, ((SAES32_ENCS_FN << 2) | (\bs))
+	.endm
+
+
+
 
 	.macro	saes32_decsm	rd, rs1, rs2, bs
 	saes32	\rd, \rs1, \rs2, ((SAES32_DECSM_FN << 2) | (\bs))

@@ -31,6 +31,16 @@ void aes256_enc_key(uint32_t rk[AES256_RK_WORDS], const uint8_t key[32]);
 void aes_enc_rounds(uint8_t ct[16], const uint8_t pt[16],
 				  const uint32_t rk[], int nr);
 
+
+void aes_enc_optimized1(uint8_t ct[16], const uint8_t pt[16],
+				  const uint8_t key[16], int nr);
+
+
+
+void aes_enc_optimized2(uint8_t ct[16], const uint8_t pt[16],
+				  const uint8_t key[16]);
+
+
 //	aliases
 #define aes128_enc_ecb(ct, pt, rk) aes_enc_rounds(ct, pt, rk, AES128_ROUNDS);
 #define aes192_enc_ecb(ct, pt, rk) aes_enc_rounds(ct, pt, rk, AES192_ROUNDS);

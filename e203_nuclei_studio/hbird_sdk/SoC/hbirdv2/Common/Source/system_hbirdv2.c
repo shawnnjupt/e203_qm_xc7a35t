@@ -382,9 +382,9 @@ void SystemBannerPrint(void)
 #error DOWNLOAD_MODE is not defined via build system, please check!
 #endif
     const char* download_modes[] = {"FLASHXIP", "FLASH", "ILM"};
-    printf("HummingBird SDK Build Time: %s, %s\r\n", __DATE__, __TIME__);
+   // printf("HummingBird SDK Build Time: %s, %s\r\n", __DATE__, __TIME__);
     printf("Download Mode: %s\r\n", download_modes[DOWNLOAD_MODE]);
-    printf("CPU Frequency %lu Hz\r\n", SystemCoreClock);
+  //  printf("CPU Frequency %lu Hz\r\n", SystemCoreClock);
 #endif
 }
 
